@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useStore } from '../store'
-import { loginZhaohua } from '../api'
+import { isDevicePaired, loginZhaohua } from '../api'
 import { APP } from '../config'
 
 // 昭华密码门：图标和输入区从晨光开屏中浮现。
 export default function PasswordGate({ onUnlock }) {
-  const setConn = useStore((s) => s.setConn)
+  const setSessionToken = useStore((s) => s.setSessionToken)
 
   const [pw,  setPw]  = useState('')
   const [err, setErr] = useState('')
@@ -20,7 +20,7 @@ export default function PasswordGate({ onUnlock }) {
     if (out) return
     try {
       const token = await loginZhaohua(pw)
-      setConn({ apiToken: token })
+      setSessionToken(token)
       pass()
     } catch (error) {
       setErr(error.message || '密码不对'); setPw('')
@@ -39,6 +39,9 @@ export default function PasswordGate({ onUnlock }) {
 
       {/* 输入区 */}
       <div className="gate-inputs">
+        {!isDevicePaired() && new URLSearchParams(window.location.hash.slice(1)).get('pair') && (
+          <p className="gate-pair-text">首次进入：输入密码即可配对这台设备</p>
+        )}
         {err && <p className="gate-err-text gate-err-shake" key={err}>{err}</p>}
         <div className="ink-field">
           <input

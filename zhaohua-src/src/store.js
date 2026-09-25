@@ -2,30 +2,28 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { APP } from './config'
 
-// 前端本地锁的简单哈希（非加密强度，只为不把明文密码存在 localStorage）
-export function hashPassword(s) {
-  let h = 5381
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0
-  return 'h' + h.toString(16)
-}
+const SESSION_KEY = 'zhaohua-session-v1'
+const savedSession = sessionStorage.getItem(SESSION_KEY) || ''
 
 export const useStore = create(
   persist(
     (set) => ({
       // ── 后端连接 ──
       baseUrl: 'https://memory.ravenlove.cc',
-      apiToken: '',
+      // 短期会话只留在当前浏览器会话，不持久化到 localStorage。
+      apiToken: savedSession,
       fetchLimit: 100,
       setConn: (p) => set(p),
+      setSessionToken: (token) => {
+        if (token) sessionStorage.setItem(SESSION_KEY, token)
+        else sessionStorage.removeItem(SESSION_KEY)
+        set({ apiToken: token || '' })
+      },
 
       // ── 主题 ──
       theme: 'light',
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
-
-      // ── 前端密码（本地锁）──
-      passwordHash: null,
-      setPassword: (pw) => set({ passwordHash: pw ? hashPassword(pw) : null }),
 
       // ── 当前面板 ──
       panel: 'memory',
@@ -37,12 +35,15 @@ export const useStore = create(
     }),
     {
       name: APP.storeKey,
+      version: 2,
+      migrate: (persisted) => {
+        const { apiToken: _oldToken, passwordHash: _oldHash, ...safe } = persisted || {}
+        return { ...safe, apiToken: savedSession }
+      },
       partialize: (s) => ({
         baseUrl: s.baseUrl,
-        apiToken: s.apiToken,
         fetchLimit: s.fetchLimit,
         theme: s.theme,
-        passwordHash: s.passwordHash,
         memoryView: s.memoryView,
       }),
     }

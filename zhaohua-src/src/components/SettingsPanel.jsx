@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { api } from '../api'
+import { api, isDevicePaired, revokeThisDevice } from '../api'
 import { useStore } from '../store'
 import { showToast } from './Toast'
 import { Plug, Palette, Activity, RefreshCw, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
@@ -32,20 +32,19 @@ function fmtBackup(report) {
 }
 
 export default function SettingsPanel() {
-  const { baseUrl, apiToken, theme, setTheme, setConn, memoryView, setMemoryView } = useStore()
+  const { baseUrl, theme, setTheme, setConn, memoryView, setMemoryView } = useStore()
   const [url, setUrl] = useState(baseUrl || 'https://memory.ravenlove.cc')
-  const [token, setToken] = useState(apiToken)
   const [testing, setTesting] = useState(false)
   const [health, setHealth] = useState(null)
   const [healthLoading, setHealthLoading] = useState(false)
 
   function saveConn() {
-    setConn({ baseUrl: url.trim(), apiToken: token.trim() })
+    setConn({ baseUrl: url.trim() })
     showToast('已保存连接', 'success')
   }
 
   async function test() {
-    setConn({ baseUrl: url.trim(), apiToken: token.trim() })
+    setConn({ baseUrl: url.trim() })
     setTesting(true)
     try {
       await api.health()
@@ -75,14 +74,20 @@ export default function SettingsPanel() {
         <div className="field"><label>Base URL</label>
           <input className="input" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://memory.ravenlove.cc" />
         </div>
-        <div className="field"><label>API Token</label>
-          <input className="input" type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Bearer token…" />
+        <div className="field"><label>设备保护</label>
+          <div className="input" style={{ opacity: 0.72 }}>{isDevicePaired() ? '已配对 · 会话凭据不会长期保存' : '未配对'}</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }} onClick={test} disabled={testing}>{testing ? '测试中…' : '测试连接'}</button>
           <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={saveConn}>保存</button>
         </div>
       </div>
+      {isDevicePaired() && (
+        <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}
+          onClick={async () => { await revokeThisDevice(); window.location.reload() }}>
+          撤销这台设备
+        </button>
+      )}
 
       <div className="section-title"><Activity size={15} style={{ verticalAlign: -2, marginRight: 6 }} />系统状态</div>
       <div className="settings-card">

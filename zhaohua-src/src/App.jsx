@@ -35,6 +35,16 @@ export default function App() {
     if (meta) meta.setAttribute('content', color)
   }, [theme])
 
+  useEffect(() => {
+    const relock = () => {
+      setUnlocked(false)
+      setSplashGone(true)
+      setGateVisible(true)
+    }
+    window.addEventListener('zhaohua-auth-expired', relock)
+    return () => window.removeEventListener('zhaohua-auth-expired', relock)
+  }, [])
+
   // 开屏和密码门交叠：字晕开的同时门从底下浮出来，不硬切
   if (!unlocked) return (
     <>
