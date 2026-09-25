@@ -1,17 +1,19 @@
 // bump this when you change files to force refresh
-const CACHE_VERSION = "2026-02-17-1";
-const CACHE_NAME = `sunmoon-cycle-${CACHE_VERSION}`;
+const CACHE_VERSION = "2026-09-25-1";
+const CACHE_NAME = `sunmoon-chaomu-${CACHE_VERSION}`;
 
 const CORE = [
-  "/cycle/app.html",
-  "/cycle/index.html",
-  "/cycle/draw/index.html",
-  "/cycle/vault/index.html",
-  "/cycle/manifest.webmanifest",
-  "/cycle/icons/icon-192.png",
-  "/cycle/icons/icon-512.png",
-  "/cycle/icons/apple-touch-icon.png",
-  "/cycle/icons/favicon-32.png"
+  "/chaomu/",
+  "/chaomu/index.html",
+  "/chaomu/cycle/index.html",
+  "/chaomu/draw/index.html",
+  "/chaomu/vault/index.html",
+  "/chaomu/zhaohua/index.html",
+  "/chaomu/manifest.webmanifest",
+  "/chaomu/icons/icon-192.png",
+  "/chaomu/icons/icon-512.png",
+  "/chaomu/icons/apple-touch-icon.png",
+  "/chaomu/icons/favicon-32.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -26,7 +28,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((k) => k.startsWith("sunmoon-cycle-") && k !== CACHE_NAME)
+          .filter((k) => (k.startsWith("sunmoon-cycle-") || k.startsWith("sunmoon-chaomu-")) && k !== CACHE_NAME)
           .map((k) => caches.delete(k))
       )
     ).then(() => self.clients.claim())
@@ -43,7 +45,7 @@ self.addEventListener("fetch", (event) => {
   // For navigations (HTML pages): Network first, fallback to app.html
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req).catch(() => caches.match("/cycle/app.html"))
+      fetch(req).catch(() => caches.match("/chaomu/index.html"))
     );
     return;
   }

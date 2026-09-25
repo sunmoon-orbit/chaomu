@@ -1,33 +1,33 @@
 {
-  "id": "/cycle/sunmoon",
-  "name": "SunMoon Tools",
-  "short_name": "SunMoon",
-  "description": "Sun & Moon: small pages, calm days.",
-  "start_url": "/cycle/app.html?from=pwa",
-  "scope": "/cycle/",
+  "id": "/chaomu/",
+  "name": "日月轨道·朝暮",
+  "short_name": "朝暮",
+  "description": "我们共同的小工具与记忆。",
+  "start_url": "/chaomu/",
+  "scope": "/chaomu/",
   "display": "standalone",
   "background_color": "#F4F2EF",
   "theme_color": "#A3B18A",
   "icons": [
     {
-      "src": "/cycle/icons/icon-192.png",
+      "src": "/chaomu/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/cycle/icons/icon-512.png",
+      "src": "/chaomu/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/cycle/icons/apple-touch-icon.png",
+      "src": "/chaomu/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/cycle/icons/favicon-32.png",
+      "src": "/chaomu/icons/favicon-32.png",
       "sizes": "32x32",
       "type": "image/png"
     }

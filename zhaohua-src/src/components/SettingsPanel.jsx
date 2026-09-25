@@ -1,0 +1,174 @@
+import { useState } from 'react'
+import { api } from '../api'
+import { useStore } from '../store'
+import { showToast } from './Toast'
+import { Plug, Palette, Activity, RefreshCw, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
+
+const THEMES = [
+  { id: 'light',    label: 'Light',    dot: '#5A7A98' },
+  { id: 'blossom',  label: 'Blossom',  dot: '#C07888' },
+  { id: 'midnight', label: 'Midnight', dot: '#6494D4' },
+  { id: 'dawn',     label: 'Dawn',     dot: '#C07840' },
+]
+
+function StatusDot({ status }) {
+  if (status === 'online') return <CheckCircle2 size={14} style={{ color: 'var(--ok)', flexShrink: 0 }} />
+  if (status === 'error' || status === 'missing') return <XCircle size={14} style={{ color: 'var(--err)', flexShrink: 0 }} />
+  return <AlertTriangle size={14} style={{ color: 'var(--warn)', flexShrink: 0 }} />
+}
+
+function fmtSince(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function fmtBackup(report) {
+  if (!report?.backup?.lastRun) return { text: '从未备份', ok: false }
+  const d = new Date(report.backup.lastRun)
+  const str = d.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const h = report.backup.hoursAgo
+  return { text: `${str}（${h < 1 ? '刚刚' : h.toFixed(0) + 'h 前'}）`, ok: report.backup.ok }
+}
+
+export default function SettingsPanel() {
+  const { baseUrl, apiToken, theme, setTheme, setConn, memoryView, setMemoryView } = useStore()
+  const [url, setUrl] = useState(baseUrl || 'https://memory.ravenlove.cc')
+  const [token, setToken] = useState(apiToken)
+  const [testing, setTesting] = useState(false)
+  const [health, setHealth] = useState(null)
+  const [healthLoading, setHealthLoading] = useState(false)
+
+  function saveConn() {
+    setConn({ baseUrl: url.trim(), apiToken: token.trim() })
+    showToast('已保存连接', 'success')
+  }
+
+  async function test() {
+    setConn({ baseUrl: url.trim(), apiToken: token.trim() })
+    setTesting(true)
+    try {
+      await api.health()
+      await api.list({ limit: 1 })
+      showToast('连接成功 ✓', 'success')
+    } catch (e) { showToast('连接失败：' + e.message, 'error') } finally { setTesting(false) }
+  }
+
+  async function checkHealth() {
+    setHealthLoading(true)
+    try {
+      const r = await api.maintainHealth()
+      setHealth(r)
+    } catch (e) {
+      showToast('巡检失败：' + e.message, 'error')
+    } finally { setHealthLoading(false) }
+  }
+
+  const backup = health ? fmtBackup(health) : null
+
+  return (
+    <div className="panel">
+      <div className="topbar"><h1>设置</h1></div>
+
+      <div className="section-title"><Plug size={15} style={{ verticalAlign: -2, marginRight: 6 }} />记忆库连接</div>
+      <div className="settings-card">
+        <div className="field"><label>Base URL</label>
+          <input className="input" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://memory.ravenlove.cc" />
+        </div>
+        <div className="field"><label>API Token</label>
+          <input className="input" type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Bearer token…" />
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }} onClick={test} disabled={testing}>{testing ? '测试中…' : '测试连接'}</button>
+          <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={saveConn}>保存</button>
+        </div>
+      </div>
+
+      <div className="section-title"><Activity size={15} style={{ verticalAlign: -2, marginRight: 6 }} />系统状态</div>
+      <div className="settings-card">
+        {!health && !healthLoading && (
+          <p style={{ fontSize: 13, opacity: 0.55, margin: '0 0 10px' }}>点击巡检，查看服务状态和备份情况</p>
+        )}
+        {health && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+            {health.services?.map(s => (
+              <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <StatusDot status={s.status} />
+                <span style={{ fontWeight: 500 }}>{s.name}</span>
+                {s.status === 'online' && (
+                  <span style={{ opacity: 0.5 }}>{s.memMB}MB · 启动于 {fmtSince(s.since)}</span>
+                )}
+                {s.status !== 'online' && <span style={{ color: 'var(--err)', opacity: 0.8 }}>{s.status}</span>}
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              {health.memories?.noEmbed === 0
+                ? <CheckCircle2 size={14} style={{ color: 'var(--ok)', flexShrink: 0 }} />
+                : <AlertTriangle size={14} style={{ color: 'var(--warn)', flexShrink: 0 }} />}
+              <span style={{ fontWeight: 500 }}>记忆库</span>
+              <span style={{ opacity: 0.5 }}>
+                {health.memories?.active} 条活跃
+                {health.memories?.noEmbed > 0 && `，${health.memories.noEmbed} 条缺向量`}
+                {health.memories?.trashed > 0 && `，${health.memories.trashed} 条回收站`}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              {backup?.ok
+                ? <CheckCircle2 size={14} style={{ color: 'var(--ok)', flexShrink: 0 }} />
+                : <AlertTriangle size={14} style={{ color: 'var(--warn)', flexShrink: 0 }} />}
+              <span style={{ fontWeight: 500 }}>备份</span>
+              <span style={{ opacity: backup?.ok ? 0.5 : 1, color: backup?.ok ? undefined : 'var(--warn)' }}>
+                {backup?.text}
+              </span>
+            </div>
+
+            {health.push && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <CheckCircle2 size={14} style={{ color: 'var(--ok)', flexShrink: 0 }} />
+                <span style={{ fontWeight: 500 }}>推送</span>
+                <span style={{ opacity: 0.5 }}>
+                  {health.push.subs} 个订阅
+                  {health.push.schedule?.length ? '，' + health.push.schedule.join(' / ') : '，未设置时间表'}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}
+          onClick={checkHealth} disabled={healthLoading}>
+          <RefreshCw size={14} style={{ marginRight: 6, ...(healthLoading ? { animation: 'spin 1s linear infinite' } : {}) }} />
+          {healthLoading ? '巡检中…' : health ? '重新巡检' : '开始巡检'}
+        </button>
+      </div>
+
+      <div className="section-title"><Palette size={15} style={{ verticalAlign: -2, marginRight: 6 }} />外观</div>
+      <div className="settings-card">
+        <div className="row"><span className="row-label">主题</span></div>
+        <div className="theme-grid">
+          {THEMES.map((t) => (
+            <button key={t.id} className={'theme-chip' + (theme === t.id ? ' active' : '')} onClick={() => setTheme(t.id)}>
+              <span className="theme-chip-dot" style={{ background: t.dot }} />
+              <span className="theme-chip-label">{t.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="row" style={{ marginTop: 14 }}><span className="row-label">记忆视图</span></div>
+        <div className="theme-grid">
+          {[
+            { id: 'list', label: '年轮列表', dot: '#8FA3BC' },
+            { id: 'starmap', label: '记忆星图', dot: '#F5D97E' },
+          ].map((v) => (
+            <button key={v.id} className={'theme-chip' + (memoryView === v.id ? ' active' : '')} onClick={() => setMemoryView(v.id)}>
+              <span className="theme-chip-dot" style={{ background: v.dot }} />
+              <span className="theme-chip-label">{v.label}</span>
+            </button>
+          ))}
+        </div>
+        <p style={{ fontSize: 12, opacity: 0.5, margin: '8px 2px 0' }}>星图把每条记忆画成一颗星，语义相近的星之间有连线。PC 大屏观感更佳。</p>
+      </div>
+    </div>
+  )
+}

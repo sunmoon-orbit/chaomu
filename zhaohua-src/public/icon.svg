@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">昭华</title>
+  <desc id="desc">晨日从地平线升起，两道光轨环绕，象征日月轨道与共同记忆。</desc>
+  <defs>
+    <linearGradient id="sky" x1="256" y1="52" x2="256" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071321"/>
+      <stop offset=".56" stop-color="#172A40"/>
+      <stop offset="1" stop-color="#9A6E55"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".38" cy=".32" r=".7">
+      <stop stop-color="#FFFBE8"/>
+      <stop offset=".5" stop-color="#FFE0A0"/>
+      <stop offset="1" stop-color="#E6A65E"/>
+    </radialGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#FFD58A" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#FFD58A" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="safe"><rect x="28" y="28" width="456" height="456" rx="116"/></clipPath>
+  </defs>
+  <g clip-path="url(#safe)">
+    <rect x="28" y="28" width="456" height="456" rx="116" fill="url(#sky)"/>
+    <circle cx="256" cy="298" r="145" fill="url(#glow)"/>
+    <path d="M76 315C154 286 358 286 436 315" fill="none" stroke="#FFE2A6" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"/>
+    <path d="M111 244C151 134 338 111 414 211" fill="none" stroke="#EAF2F6" stroke-opacity=".34" stroke-width="6" stroke-linecap="round"/>
+    <path d="M98 357C177 441 350 437 421 341" fill="none" stroke="#F9CB89" stroke-opacity=".32" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="256" cy="300" r="62" fill="url(#sun)"/>
+    <path d="M194 300A62 62 0 0 0 318 300" fill="#D89555" fill-opacity=".22"/>
+    <circle cx="406" cy="205" r="12" fill="#F4F6F1"/>
+    <circle cx="410" cy="201" r="12" fill="#172A40"/>
+    <circle cx="256" cy="300" r="68" fill="none" stroke="#FFF6DC" stroke-opacity=".3" stroke-width="3"/>
+  </g>
+</svg>
