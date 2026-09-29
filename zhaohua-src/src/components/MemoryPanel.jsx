@@ -184,7 +184,7 @@ function Editor({ initial, onClose, onSaved }) {
           </select>
         </div>
         <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="select" style={{ flex: 1, display: 'flex', alignItems: 'center' }}>记录于昭华</div>
+          <div className="select" style={{ flex: 1, display: 'flex', alignItems: 'center' }}>记录于{APP.agentDisplayName}</div>
           <label className="memorable-toggle" onClick={() => setMemorable(!memorable)}>
             <span className={'toggle' + (memorable ? ' on' : '')} />
             <span>难忘</span>
@@ -271,7 +271,7 @@ function Card({ m, onEdit, onTrash }) {
 
       {/* 底部操作 */}
       <div className="card-footer">
-        <span className="card-agent">{m.agent || ''}</span>
+        <span className="card-agent">{m.agent === APP.agent ? APP.agentDisplayName : (m.agent || '')}</span>
         <div className="card-acts">
           <button
             className={'icon-btn related-btn' + (relOpen ? ' active' : '')}

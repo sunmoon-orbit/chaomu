@@ -165,6 +165,7 @@ export default function SettingsPanel() {
           {[
             { id: 'list', label: '年轮列表', dot: '#8FA3BC' },
             { id: 'starmap', label: '记忆星图', dot: '#F5D97E' },
+            { id: 'tree', label: '记忆木牌树', dot: '#8B7654' },
           ].map((v) => (
             <button key={v.id} className={'theme-chip' + (memoryView === v.id ? ' active' : '')} onClick={() => setMemoryView(v.id)}>
               <span className="theme-chip-dot" style={{ background: v.dot }} />
@@ -172,7 +173,7 @@ export default function SettingsPanel() {
             </button>
           ))}
         </div>
-        <p style={{ fontSize: 12, opacity: 0.5, margin: '8px 2px 0' }}>星图把每条记忆画成一颗星，语义相近的星之间有连线。PC 大屏观感更佳。</p>
+        <p style={{ fontSize: 12, opacity: 0.5, margin: '8px 2px 0' }}>木牌树让普通记忆成叶、重要记忆成牌；布局打开时算定，不持续模拟，手机更省电。</p>
       </div>
     </div>
   )

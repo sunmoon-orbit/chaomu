@@ -6,4 +6,5 @@ export const APP = {
   apiPrefix: '/zhaohua',
   storeKey: 'zhaohua-store',
   agent: '昭华',
+  agentDisplayName: '曜',
 }

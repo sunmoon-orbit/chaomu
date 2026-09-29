@@ -5,6 +5,7 @@ import PasswordGate from './components/PasswordGate'
 import { ToastHost } from './components/Toast'
 import MemoryPanel from './components/MemoryPanel'
 import StarMapPanel from './components/StarMapPanel'
+import MemoryTreePanel from './components/MemoryTreePanel'
 import TrashPanel from './components/TrashPanel'
 import StatsPanel from './components/StatsPanel'
 import SettingsPanel from './components/SettingsPanel'
@@ -55,7 +56,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {panel === 'memory' && (memoryView === 'starmap' ? <StarMapPanel /> : <MemoryPanel />)}
+      {panel === 'memory' && (memoryView === 'starmap' ? <StarMapPanel /> : memoryView === 'tree' ? <MemoryTreePanel /> : <MemoryPanel />)}
       {panel === 'stats' && <StatsPanel />}
       {panel === 'trash' && <TrashPanel />}
       {panel === 'settings' && <SettingsPanel />}
